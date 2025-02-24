@@ -21,13 +21,14 @@ class BBInstances(models.Model):
     """ Model to store the instances of the bytebridge app """
 
     instance_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    instance_ip = models.GenericIPAddressField(blank=False, null = False)
-    instance_port = models.IntegerField(blank=False, null = False)
-    
     username = models.CharField(max_length=100, blank=False)
     password = models.CharField(max_length=100, blank=False)
     datastore_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    datastore_name = models.CharField(max_length=100, blank=True)
     datastore_private = models.BooleanField(default=True)
+    bucket_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    bucket_name = models.CharField(max_length=100, blank=True)
+    bucket_private = models.BooleanField(default=True)
     user_id= models.IntegerField(blank=True, null=True) # ForeignKey to the User model
     created_at = models.DateTimeField(auto_now_add=True)
 

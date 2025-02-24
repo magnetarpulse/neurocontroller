@@ -17,8 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 def connect(request):
     
     data = json.loads(request.body.decode("utf-8"))
-    ip = data.get('ip')
-    port = data.get('port')
+
     username = data.get('username')
     password = data.get('password')
 
@@ -30,32 +29,44 @@ def connect(request):
         print(f"User Exists with {username}:{password} with id {user.user_id_id}")
         
         if BBInstances.objects.filter(username=username, password=password).exists():
-            instance = BBInstances.objects.get(username=username, password=password, instance_ip=ip, instance_port=port)
-            print(f"Instance already exists with {username}:{password}:{ip}:{port}:{instance.instance_id}:{instance.datastore_id}:{user.user_id_id}")
+            instance = BBInstances.objects.get(username=username, password=password)
+            print(f"Instance already exists with {username}:{password}:{instance.instance_id}")
+            
+            print(f"Datastore: {instance.datastore_id},{instance.datastore_name}")
+            print(f"Bucket: {instance.bucket_id},{instance.bucket_name}")
             print(f"Owned by user {instance.user_id}")
             print(f"Is the Datastore private? {instance.datastore_private}")
+            print(f"Is the Bucket private? {instance.bucket_private}")
             return JsonResponse({'msg': 'Instance already exists','datastore_id': instance.datastore_id, 
+                                'datastore_name':instance.datastore_name,
+                                    'bucket_id':instance.bucket_id, 'bucket_name':instance.bucket_name,
                                     'instance_id':instance.instance_id, 'user_id':user.user_id_id,
                                     'datastore_private':instance.datastore_private,
-                                
+                                    'bucket_private':instance.bucket_private,
                                     }, status=200)
         
         else:
-            connected_instance = BBInstances.objects.create(instance_ip=ip, instance_port=port,username=username, password=password, user_id=user.user_id_id)
-            connected_instance.save()
+            connected_instance = BBInstances.objects.create(username=username, password=password, user_id=user.user_id_id)
             datastore_id = connected_instance.datastore_id
+            datastore_name = "default-datastore"
+            bucket_id = connected_instance.bucket_id
+            bucket_name = "default-bucket"
+            connected_instance.datastore_name = datastore_name
+            connected_instance.bucket_name = bucket_name
             instance_id = connected_instance.instance_id
             user_id = user.user_id_id
             datastore_private = connected_instance.datastore_private
-            
-            #if privacy == '1':
-            #    print("Private Datastore")
+            bucket_private = connected_instance.bucket_private
+            connected_instance.save()
             print("ByteBridge Instance Created")
-            print(f"Datastore ID: {datastore_id}")
             print(f"Instance ID: {instance_id}")
+            print(f"Datastore Created: {datastore_id}, {datastore_name}")
+            print(f"Bucket Created: {bucket_id}, {bucket_name}")
             print(f"Owned by user {user.user_id_id}")
-            return JsonResponse({'msg': 'Connected', 'datastore_id':datastore_id, 'instance_id': instance_id, 
-                                'user_id':user_id,'datastore_private':datastore_private}, status=200)
+            return JsonResponse({'msg': 'Connected', 'instance_id': instance_id, 'user_id':user_id,
+                                'datastore_id':datastore_id, 'datastore_name':datastore_name, 
+                                'bucket_id':bucket_id, 'bucket_name':bucket_name,
+                                'datastore_private':datastore_private, 'bucket_private':bucket_private}, status=200)
 
 
 
