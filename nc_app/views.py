@@ -25,48 +25,39 @@ def connect(request):
     user = UserInfo.objects.get(username=username, password=password)
     if not user:
         return JsonResponse({'error': 'Invalid credentials'}, status=401)
+    
     else:
         print(f"User Exists with {username}:{password} with id {user.user_id_id}")
         
-        if BBInstances.objects.filter(username=username, password=password).exists():
-            instance = BBInstances.objects.get(username=username, password=password)
-            print(f"Instance already exists with {username}:{password}:{instance.instance_id}")
+        if BBInstances.objects.filter(user_id = user.user_id_id).exists():
+            instance = BBInstances.objects.get(user_id = user.user_id_id)
+            print(f"Instance already exists with {user.user_id_id}:{instance.instance_id}")
             
             print(f"Datastore: {instance.datastore_id},{instance.datastore_name}")
-            print(f"Bucket: {instance.bucket_id},{instance.bucket_name}")
             print(f"Owned by user {instance.user_id}")
             print(f"Is the Datastore private? {instance.datastore_private}")
-            print(f"Is the Bucket private? {instance.bucket_private}")
             return JsonResponse({'msg': 'Instance already exists','datastore_id': instance.datastore_id, 
                                 'datastore_name':instance.datastore_name,
-                                    'bucket_id':instance.bucket_id, 'bucket_name':instance.bucket_name,
                                     'instance_id':instance.instance_id, 'user_id':user.user_id_id,
-                                    'datastore_private':instance.datastore_private,
-                                    'bucket_private':instance.bucket_private,
-                                    }, status=200)
+                                    'datastore_private':instance.datastore_private}, status=200)
         
         else:
-            connected_instance = BBInstances.objects.create(username=username, password=password, user_id=user.user_id_id)
-            datastore_id = connected_instance.datastore_id
-            datastore_name = "default-datastore"
-            bucket_id = connected_instance.bucket_id
-            bucket_name = "default-bucket"
-            connected_instance.datastore_name = datastore_name
-            connected_instance.bucket_name = bucket_name
-            instance_id = connected_instance.instance_id
-            user_id = user.user_id_id
-            datastore_private = connected_instance.datastore_private
-            bucket_private = connected_instance.bucket_private
+            connected_instance = BBInstances.objects.create(user_id=user.user_id_id,
+                                            instance_id = uuid.uuid4(),
+                                            datastore_id = uuid.uuid4(),
+                                            datastore_name = f"default-datastore-{user.user_id_id}",)
+
             connected_instance.save()
+
             print("ByteBridge Instance Created")
-            print(f"Instance ID: {instance_id}")
-            print(f"Datastore Created: {datastore_id}, {datastore_name}")
-            print(f"Bucket Created: {bucket_id}, {bucket_name}")
             print(f"Owned by user {user.user_id_id}")
-            return JsonResponse({'msg': 'Connected', 'instance_id': instance_id, 'user_id':user_id,
-                                'datastore_id':datastore_id, 'datastore_name':datastore_name, 
-                                'bucket_id':bucket_id, 'bucket_name':bucket_name,
-                                'datastore_private':datastore_private, 'bucket_private':bucket_private}, status=200)
+            print(f"Instance ID: {connected_instance.instance_id}")
+            print(f"Datastore Created: {connected_instance.datastore_id}, {connected_instance.datastore_name}")
+
+            return JsonResponse({'msg': 'Connected', 'instance_id': connected_instance.instance_id, 'user_id':connected_instance.user_id,
+                                'datastore_id':connected_instance.datastore_id, 'datastore_name':connected_instance.datastore_name, 
+                                'datastore_private':connected_instance.datastore_private, 
+                                'datastore_default':connected_instance.datastore_default},status=200)
 
 
 
@@ -114,8 +105,7 @@ def login_page(request):
             user_id = user, defaults={'username': username, 'password': password})
             login(request, user)
             
-            #return redirect('/upload/')
-    
+            
     return render(request, 'login.html')
 
 
