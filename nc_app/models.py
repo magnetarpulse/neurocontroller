@@ -17,20 +17,24 @@ class UserInfo(models.Model):
         return f"Information for {self.username}: {self.password}"
 
 
-class BBInstances(models.Model):
-    """ Model to store the instances of the bytebridge app """
 
+class BBInstances(models.Model):
+    """ Model to store the instances of the bytebridge app and its default datastores created """
+
+    user_id= models.IntegerField(blank=True, null=True) # ForeignKey to the User model
     instance_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    username = models.CharField(max_length=100, blank=False)
-    password = models.CharField(max_length=100, blank=False)
-    datastore_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    datastore_id = models.UUIDField(default=uuid.uuid4, editable=False)
     datastore_name = models.CharField(max_length=100, blank=True)
     datastore_private = models.BooleanField(default=True)
-    bucket_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    bucket_name = models.CharField(max_length=100, blank=True)
-    bucket_private = models.BooleanField(default=True)
-    user_id= models.IntegerField(blank=True, null=True) # ForeignKey to the User model
+    datastore_default = models.BooleanField(default=True) 
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    
+    #bucket_id = models.UUIDField(default=None, unique=True, editable=False)
+    #bucket_name = models.CharField(max_length=100, blank=True, default=None)
+    #bucket_private = models.BooleanField(default=None)
+    #bucket_default = models.BooleanField(default=None)
+    
 
     def __str__(self):
         return f"Instance {self.instance_id}:{self.datastore_id}"
