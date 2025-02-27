@@ -21,19 +21,13 @@ class UserInfo(models.Model):
 class BBInstances(models.Model):
     """ Model to store the instances of the bytebridge app and its default datastores created """
 
-    user_id= models.IntegerField(blank=True, null=True) # ForeignKey to the User model
+    owner_id= models.IntegerField(blank=True, null=False) # ForeignKey to the User model
     instance_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     datastore_id = models.UUIDField(default=uuid.uuid4, editable=False)
     datastore_name = models.CharField(max_length=100, blank=True)
     datastore_private = models.BooleanField(default=True)
-    datastore_default = models.BooleanField(default=True) 
+    default = models.BooleanField(default=True) 
     created_at = models.DateTimeField(auto_now_add=True)
-    
-    
-    #bucket_id = models.UUIDField(default=None, unique=True, editable=False)
-    #bucket_name = models.CharField(max_length=100, blank=True, default=None)
-    #bucket_private = models.BooleanField(default=None)
-    #bucket_default = models.BooleanField(default=None)
     
 
     def __str__(self):
