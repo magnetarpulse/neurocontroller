@@ -29,20 +29,20 @@ def connect(request):
     else:
         print(f"User Exists with {username}:{password} with id {user.user_id_id}")
         
-        if BBInstances.objects.filter(user_id = user.user_id_id).exists():
-            instance = BBInstances.objects.get(user_id = user.user_id_id)
+        if BBInstances.objects.filter(owner_id = user.user_id_id).exists():
+            instance = BBInstances.objects.get(owner_id = user.user_id_id)
             print(f"Instance already exists with {user.user_id_id}:{instance.instance_id}")
             
             print(f"Datastore: {instance.datastore_id},{instance.datastore_name}")
-            print(f"Owned by user {instance.user_id}")
+            print(f"Owned by user {instance.owner_id}")
             print(f"Is the Datastore private? {instance.datastore_private}")
             return JsonResponse({'msg': 'Instance already exists','datastore_id': instance.datastore_id, 
                                 'datastore_name':instance.datastore_name,
-                                    'instance_id':instance.instance_id, 'user_id':user.user_id_id,
+                                    'owner_id':user.user_id_id,
                                     'datastore_private':instance.datastore_private}, status=200)
         
         else:
-            connected_instance = BBInstances.objects.create(user_id=user.user_id_id,
+            connected_instance = BBInstances.objects.create(owner_id=user.user_id_id,
                                             instance_id = uuid.uuid4(),
                                             datastore_id = uuid.uuid4(),
                                             datastore_name = f"default-datastore-{user.user_id_id}",)
@@ -54,10 +54,11 @@ def connect(request):
             print(f"Instance ID: {connected_instance.instance_id}")
             print(f"Datastore Created: {connected_instance.datastore_id}, {connected_instance.datastore_name}")
 
-            return JsonResponse({'msg': 'Connected', 'instance_id': connected_instance.instance_id, 'user_id':connected_instance.user_id,
+            return JsonResponse({'msg': 'Connected',  
+                                'owner_id':connected_instance.owner_id,
                                 'datastore_id':connected_instance.datastore_id, 'datastore_name':connected_instance.datastore_name, 
                                 'datastore_private':connected_instance.datastore_private, 
-                                'datastore_default':connected_instance.datastore_default},status=200)
+                                'default':connected_instance.default},status=200)
 
 
 
@@ -101,8 +102,8 @@ def login_page(request):
             # Log in the user and redirect to the upload file page upon successful login
             # Check if the user already has a UserInfo entry
             logged_user, created = UserInfo.objects.get_or_create(
-            # This is the ForeignKey field
-            user_id = user, defaults={'username': username, 'password': password})
+            user_id = user,  # This is the ForeignKey field
+            defaults={'username': username, 'password': password})
             login(request, user)
             
             
