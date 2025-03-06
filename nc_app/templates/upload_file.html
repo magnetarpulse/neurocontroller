@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Upload File</title>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <!-- File Upload -->
+        <form class="col-6 mx-auto card p-3 shadow-lg" method="post" enctype="multipart/form-data" >
+        
+            {% csrf_token %}  <!-- CSRF token for security -->
+            
+            <!-- Registration form heading -->
+            <h1 style="text-align: center;"><span style="color: rgb(60, 34, 153);">ByteBridge</span></h1>
+            <h3>Upload File</h3>
+            <hr>
+
+            <input type="hidden" name="owner_id" value="{{ owner_id }}">
+            <input type="hidden" name="static_path" value="{{ static_path }}">
+            
+
+            <!-- Display error/success messages -->
+            {% if messages %}
+            <div class="alert alert-primary" role="alert">
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Datastore Selection -->
+            <div class="form-group">
+                <label for="selected_ds">Select a Public Datastore to upload file:</label>
+                <select name="selected_ds" id="selected_ds" class="form-control" onchange="this.form.submit()">
+                    <option value="">Select a datastore</option>
+                    {% for datastore in datastores_upload %}
+                        <option value="{{ datastore }}" {% if datastore == selected_ds %}selected{% endif %}>{{ datastore }}</option>
+                    {% empty %}
+                        <!--<option>No public datastores available.</option>-->
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class = "form-group">
+                <label for="selected_bucket">Select a Public Bucket to upload file:</label>
+                <!-- Bucket Selection -->
+                <select name="selected_bucket" id="selected_bucket" class="form-control">
+                    <option value="">Select a bucket</option>
+                    {% for bucket in buckets_upload %}
+                        <option value="{{ bucket }}" {% if bucket == selected_bucket %}selected{% endif %}>
+                            {{ bucket }}
+                        </option>
+                    {% empty %}
+                        <!--<option>No buckets available.</option>-->
+                    {% endfor %}
+                </select>
+                
+
+            <!-- Radio Button for file type-->
+            <div class="form-group">
+                <label for="file_type">Select File Type:</label><br>
+                <input type="radio" id="csv" name="file_type" value="csv"
+                    {% if selected_file_type == "csv" %}checked{% endif %}>
+                <label for="csv">CSV</label><br>
+            
+                <input type="radio" id="image_collection" name="file_type" value="image_collection"
+                    {% if selected_file_type == "image_collection" %}checked{% endif %}>
+                <label for="image_collection">Image Collection</label><br>
+            
+                <input type="radio" id="image" name="file_type" value="image"
+                    {% if selected_file_type == "image" %}checked{% endif %}>
+                <label for="image">Image</label><br>
+            </div>
+
+            
+            
+            <!-- Input for File -->
+            <div class="form-group">
+                <label for="file_upload">Upload a File:</label>
+                <input type="file" class="form-control" name="file" id="file" placeholder="Upload a File" required>
+            </div>
+
+            <!-- Upload button -->
+            <button type="submit" class="btn btn-primary">Upload</button>
+            <!--<a href="/" class="btn btn-secondary">Back to Home</a>-->
+        </form>
+    </div>
+</body>
+</html>
