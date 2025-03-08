@@ -19,7 +19,7 @@ from .serializers import *
 
 # Create your views here.
 global static_path
-static_path = r"/home/areena/neurobazaar/bytebridge/bb_app/datastore"
+static_path = r"/home/cc/neurobazaar/bytebridge/bb_app/datastore"
 
 
 BB_CREATE_DS = 'http://127.0.0.1:9000/api/user_datastore'
@@ -130,17 +130,13 @@ class NCConnectAPI(APIView):
             else:
                 instance = BBInstances.objects.create(owner_id=user.user_id_id,
                                                 instance_id = uuid.uuid4(),
-                                                datastore_id = uuid.uuid4(),
-                                                datastore_name = f"default-datastore-{user.user_id_id}",
                                                 accessed_at = timezone.now(),)
                 instance.save()
             
             print(f"New ByteBridge Instance Created for user {instance.owner_id}: {instance.instance_id}")
-            print(f"Datastore: {instance.datastore_id}, {instance.datastore_name}")
-
-        
-            return render(request, 'welcome.html', {'username':username, 'owner_id':instance.owner_id,'datastore_id': instance.datastore_id, 
-                                    'datastore_name': instance.datastore_name, 'instance_id': instance.instance_id, 'static_path': static_path})
+            
+            return render(request, 'welcome.html', {'username':username, 'owner_id':instance.owner_id,
+                                                    'instance_id': instance.instance_id, 'static_path': static_path})
             
             
         except json.JSONDecodeError:
@@ -153,13 +149,10 @@ class GetDatastoreAPI(APIView):
         try:
             owner_id = request.GET.get('owner_id')
             instance_id = request.GET.get('instance_id')
-            datastore_id = request.GET.get('datastore_id')
-            datastore_name = request.GET.get('datastore_name')
             static_path = request.GET.get('static_path')
-            print(f"Getting datastore for {owner_id}:{instance_id}:{datastore_id}:{datastore_name}")
+            print(f"Getting datastore for {owner_id}:{instance_id}")
 
-            response = requests.post(BB_CREATE_DS, json={'owner_id': owner_id, 'instance_id': instance_id, 
-                                        'datastore_id': datastore_id, 'datastore_name': datastore_name, 'static_path': static_path}, timeout=5)
+            response = requests.post(BB_CREATE_DS, json={'owner_id': owner_id, 'instance_id': instance_id, 'static_path': static_path}, timeout=5)
             
             if response.status_code != 200:
                 return JsonResponse({'error': 'Failed to create datastore'}, status=response.status_code)
@@ -178,7 +171,7 @@ class NC_DS_Settings(APIView):
         response = requests.post(BB_SEND_USER_DATASTORES, json={'owner_id': owner_id}, timeout=5)
         if response.status_code == 200:
             response_data = response.json()  # Extract JSON response
-            all_datastores = response_data.get('all_datastores')  # Extract datastore_id
+            all_datastores = response_data.get('all_datastores',[])  # Extract datastore_id
 
             print(f"Owner ID {owner_id} received successfully by BB")
             print(f"Datastores: {all_datastores}")
@@ -194,24 +187,23 @@ class NC_DS_Settings(APIView):
         private_permissions = request.POST.get('private_permissions')
         datastore_name = request.POST.get('datastore_name')
         
-        print(f"Owner ID: {owner_id}, Selected Datastore: {selected_ds}, Private Permissions: {private_permissions}")
+        print(f"Owner ID: {owner_id}, Selected Datastore: {selected_ds}, Private Permissions: {private_permissions}, Datastore Name: {datastore_name}")
 
         response = requests.post(BB_CHANGE_DS_SETTINGS, json={'owner_id': owner_id, 'selected_ds': selected_ds, 
                                     'private_permissions':private_permissions, 'datastore_name':datastore_name}, timeout=5)
         
-        data = response.json()
         if response.status_code == 200:
             messages.success(request, "Datastore settings updated successfully")
         
         else:
-            messages.info(request, "Datastore is already set to the selected value")
+            messages.error(request, "Failed to update datastore settings")
         
         response_data = requests.post(BB_SEND_USER_DATASTORES, json={'owner_id': owner_id}, timeout=5)
         if response_data.status_code == 200:
             response_data = response_data.json()  
-            all_datastores = response_data.get('all_datastores') 
+            all_datastores = response_data.get('all_datastores',[]) 
         
-        return render(request, 'ds_settings.html', {'all_datastores': all_datastores , 'owner_id': owner_id})
+            return render(request, 'ds_settings.html', {'all_datastores': all_datastores , 'owner_id': owner_id})
 
 
 
@@ -259,7 +251,7 @@ class UploadFile(APIView):
         file = request.FILES.get('file')
         file_type = request.POST.get('file_type')
 
-        print(f"Owner ID: {owner_id}, Selected Datastore: {selected_ds}, Bucket Name: {selected_bucket}, File: {file}")
+        print(f"Owner ID: {owner_id}, Selected Datastore: {selected_ds}, Selected Bucket: {selected_bucket}, File: {file}")
 
         response_ds = requests.post(BB_SEND_ALL_DATASTORES, json={'owner_id': owner_id}, timeout=5)
         datastores_upload = response_ds.json().get('datastores_upload', []) if response_ds.status_code == 200 else []
@@ -268,8 +260,9 @@ class UploadFile(APIView):
         if selected_ds:
             response_bucket = requests.post(BB_SEND_BUCKETS, json={'owner_id': owner_id, 'selected_ds': selected_ds}, timeout=5)
             if response_bucket.status_code == 200:
-                buckets_upload = response_bucket.json().get('buckets_upload', [])
+                buckets_upload = response_bucket.json().get('buckets_upload',[])
                 print(f"Buckets in Post: {buckets_upload}")
+        
         
         if file and file_type:
             if not selected_bucket:
@@ -277,10 +270,12 @@ class UploadFile(APIView):
                     bucket_name = f"default-bucket-{owner_id}"
                     response = requests.post(BB_CREATE_BUCKETS, json={'owner_id': owner_id, 'selected_ds': selected_ds, 'bucket_name': bucket_name, 'static_path':static_path}, timeout=5)
                     if response.status_code == 200:
-                        selected_bucket = response.json().get('bucket_name', bucket_name)
-                        print(f"Created new bucket: {selected_bucket}")
+                        selected_bucket = response.json().get('created_bucket')
+                        print("Latest bucket:", selected_bucket)
+                                            
                     else:
                         raise Exception("Bucket creation failed")
+                
                 except Exception as e:
                     messages.error(request, f"Error creating bucket: {e}")
                     return JsonResponse({'error': 'Failed to create bucket', 'details': str(e)}, status=500)
@@ -300,8 +295,6 @@ class UploadFile(APIView):
 
                 return render(request, 'upload_file.html', {
                 'owner_id': owner_id,
-                #'selected_ds': selected_ds,
-                #'selected_bucket': selected_bucket,
                 'datastores_upload': datastores_upload,
                 'buckets_upload': buckets_upload
             })

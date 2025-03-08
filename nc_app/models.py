@@ -23,10 +23,6 @@ class BBInstances(models.Model):
 
     owner_id= models.IntegerField(blank=False, null=False) # ForeignKey to the User model
     instance_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    datastore_id = models.UUIDField(default=uuid.uuid4, editable=False)
-    datastore_name = models.CharField(max_length=100, blank=False)
-    private_permissions = models.BooleanField(default=True)
-    default = models.BooleanField(default=True) 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     accessed_at = models.DateTimeField(null=False, blank=False)
