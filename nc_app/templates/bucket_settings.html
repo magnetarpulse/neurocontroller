@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Bucket Settings</title>
+</head>
+<body>
+    <div class="container mt-5">
+
+        <form class="col-6 mx-auto card p-3 shadow-lg" method="post" enctype="multipart/form-data" >
+            {% csrf_token %}
+            <h1 style="text-align: center;">
+                <span style="color: rgb(60, 34, 153);">Bucket Privacy Settings</span>
+            </h1>
+
+            <!-- Display error/success messages -->
+            {% if messages %}
+            <div class="alert alert-primary" role="alert">
+                {% for message in messages %}
+                <li>{{ message }}</li>    
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            
+            <hr>
+
+            <div class="form-group">
+                <label for="selected_bucket">Select a Bucket to Change its Privacy</label>
+                <select name="selected_bucket" id="selected_bucket" class="form-control">
+                    <option value="">Select a Bucket</option>
+                    {% for bucket in all_buckets %}
+                        <option value="{{ bucket.1 }}" {% if selected_bucket and selected_bucket|stringformat:"s" == bucket.1|stringformat:"s" %}selected{% endif %}>
+                        {{ bucket.0 }}</option>
+                    {% empty %}
+                    {% endfor %}
+                </select>
+            </div>
+
+            <hr>
+
+            <input type="hidden" name="owner_id" value="{{ owner_id }}">
+            <input type="hidden" name="static_path" value="{{ static_path }}">
+            
+            
+            
+            <label for="private_permissions">Set Privacy:</label>
+            <select name="private_permissions" class="form-control">
+                <option value="private" name="private" id ="private">Private</option>
+                <option value="public" name="public" id ="public">Public</option> 
+            </select>
+            
+            <br>
+            <hr>
+
+            <h4>Rename Bucket</h4>
+            <hr>
+            <label for="bucket_name">Rename Bucket:</label>
+            <input type="text" name="bucket_name" id="bucket_name" class="form-control" placeholder="Enter new bucket name">
+       
+            <hr>
+            <button type="submit" class="btn btn-primary">Submit Changes</button>
+
+            <!-- <a href="{{referer_url}}" class="btn btn-secondary">Back to Home</a> -->
+            <!-- <a href="/api/get_datastore?owner_id={{owner_id}}&instance_id={{instance_id}}" class="btn btn-secondary">Back to Home</a> -->
+
+        </form>
+    </div>
+</body>
+</html>
