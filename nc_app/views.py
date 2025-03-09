@@ -23,12 +23,19 @@ static_path = r"/home/cc/neurobazaar/bytebridge/bb_app/datastore"
 
 
 BB_CREATE_DS = 'http://127.0.0.1:9000/api/user_datastore'
-BB_SEND_USER_DATASTORES = 'http://127.0.0.1:9000/api/send_user_datastores'
-BB_CHANGE_DS_SETTINGS = 'http://127.0.0.1:9000/api/change_ds_settings'
-BB_SEND_ALL_DATASTORES = 'http://127.0.0.1:9000/api/send_all_datastores'
-BB_SEND_BUCKETS = 'http://127.0.0.1:9000/api/send_buckets'
 BB_CREATE_BUCKETS = 'http://127.0.0.1:9000/api/create_buckets'
 BB_CREATE_OBJECTS = 'http://127.0.0.1:9000/api/create_objects'
+
+BB_SEND_USER_DATASTORES = 'http://127.0.0.1:9000/api/send_user_datastores'
+BB_CHANGE_DS_SETTINGS = 'http://127.0.0.1:9000/api/change_ds_settings'
+
+BB_SEND_USER_BUCKETS = 'http://127.0.0.1:9000/api/send_user_buckets'
+BB_CHANGE_BUCKET_SETTINGS = 'http://127.0.0.1:9000/api/change_bucket_settings'
+
+BB_SEND_ALL_DATASTORES = 'http://127.0.0.1:9000/api/send_all_datastores'
+BB_SEND_BUCKETS = 'http://127.0.0.1:9000/api/send_buckets'
+
+
 
 
 
@@ -309,3 +316,49 @@ class UploadFile(APIView):
             'datastores_upload': datastores_upload,
             'buckets_upload': buckets_upload
         })
+
+
+
+class NC_Bucket_Settings(APIView):
+    def get(self, request):
+        # Get the owner_id from the request
+        storage = get_messages(request)
+        list(storage)
+        owner_id = request.GET.get('owner_id')
+        response = requests.post(BB_SEND_USER_BUCKETS, json={'owner_id': owner_id}, timeout=5)
+        if response.status_code == 200:
+            response_data = response.json()  # Extract JSON response
+            all_buckets = response_data.get('all_buckets',[])  # Extract bucket_id
+
+            print(f"Owner ID {owner_id} received successfully by BB")
+            print(f"Buckets: {all_buckets}")
+            # You can process the response data here if needed
+            return render(request, 'bucket_settings.html', {'all_buckets': all_buckets, 'owner_id': owner_id})
+
+
+    def post(self, request):
+        storage = get_messages(request)
+        list(storage)
+        owner_id = request.POST.get('owner_id')
+        selected_bucket = request.POST.get('selected_bucket')
+        private_permissions = request.POST.get('private_permissions')
+        bucket_name = request.POST.get('bucket_name')
+        
+        print(f"Owner ID: {owner_id}, Selected Bucket: {selected_bucket}, Private Permissions: {private_permissions}, Bucket Name: {bucket_name}")
+
+        response = requests.post(BB_CHANGE_BUCKET_SETTINGS, json={'owner_id': owner_id, 'selected_bucket': selected_bucket, 
+                                    'private_permissions':private_permissions, 'bucket_name':bucket_name}, timeout=5)
+        
+        if response.status_code == 200:
+            messages.success(request, "Bucket settings updated successfully")
+        
+        else:
+            messages.error(request, "Failed to update bucket settings")
+        
+        response_data = requests.post(BB_SEND_USER_BUCKETS, json={'owner_id': owner_id}, timeout=5)
+        if response_data.status_code == 200:
+            response_data = response_data.json()  
+            all_buckets = response_data.get('all_buckets',[]) 
+        
+            return render(request, 'bucket_settings.html', {'all_buckets': all_buckets , 'owner_id': owner_id})
+
