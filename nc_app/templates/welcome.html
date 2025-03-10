@@ -11,14 +11,17 @@
 <body>
 
     <div class="container mt-5">
-        <form method="POST" enctype="multipart/form-data" action="http://127.0.0.1:8000/api/get_datastore?owner_id={{ owner_id }}&instance_id={{instance_id}}&static_path={{static_path}}">
-            
+        <form method="POST" enctype="multipart/form-data" action="http://127.0.0.1:8000/api/get_datastore">
             {% csrf_token %}
 
             
             <h1 style="text-align: center;">
                 <span style="color: rgb(60, 34, 153);">Welcome to ByteBridge</span>
             </h1>
+
+            <input type="hidden" name="owner_id" value="{{ owner_id }}">
+            <input type="hidden" name="static_path" value="{{ static_path }}">
+            <input type="hidden" name="instance_id" value="{{ instance_id }}">
             
             <!-- Display username dynamically -->
             <h1>Hello,<span style="color: purple; "> {{username}}</span></h1>

@@ -45,6 +45,7 @@
 
             <input type="hidden" name="owner_id" value="{{ owner_id }}">
             <input type="hidden" name="static_path" value="{{ static_path }}">
+            <input type="hidden" name="instance_id" value="{{ instance_id }}">
             
             
             
@@ -65,9 +66,7 @@
             <hr>
             <button type="submit" class="btn btn-primary">Submit Changes</button>
 
-            <!-- <a href="{{referer_url}}" class="btn btn-secondary">Back to Home</a> -->
-            <!-- <a href="/api/get_datastore?owner_id={{owner_id}}&instance_id={{instance_id}}" class="btn btn-secondary">Back to Home</a> -->
-
+            <a href="/api/get_datastore?owner_id={{owner_id}}&static_path={{static_path}}&instance_id={{instance_id}}" class="btn btn-secondary">Back to Home</a>
         </form>
     </div>
 </body>

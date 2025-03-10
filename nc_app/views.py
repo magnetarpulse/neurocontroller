@@ -151,20 +151,27 @@ class NCConnectAPI(APIView):
 
 
 class GetDatastoreAPI(APIView): 
-
+    def get(self, request):
+        owner_id = request.GET.get('owner_id')
+        instance_id = request.GET.get('instance_id')
+        static_path = request.GET.get('static_path')
+        print(f"In Get Owner ID: {owner_id}, Instance ID: {instance_id}, Static Path: {static_path}")
+        return render(request, 'index.html', {'owner_id':owner_id, 'static_path':static_path, 'instance_id': instance_id})
+    
+    
     def post(self, request):
         try:
-            owner_id = request.GET.get('owner_id')
-            instance_id = request.GET.get('instance_id')
-            static_path = request.GET.get('static_path')
-            print(f"Getting datastore for {owner_id}:{instance_id}")
+            owner_id = request.POST.get('owner_id')
+            instance_id = request.POST.get('instance_id')
+            static_path = request.POST.get('static_path')
+            print(f"Owner ID: {owner_id}, Instance ID: {instance_id}, Static Path: {static_path}")
 
             response = requests.post(BB_CREATE_DS, json={'owner_id': owner_id, 'instance_id': instance_id, 'static_path': static_path}, timeout=5)
             
             if response.status_code != 200:
                 return JsonResponse({'error': 'Failed to create datastore'}, status=response.status_code)
 
-            return render(request,'index.html', {'owner_id':owner_id, 'static_path':static_path})
+            return render(request,'index.html', {'owner_id':owner_id, 'static_path':static_path, 'instance_id': instance_id})
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON format'}, status=400)
 
@@ -275,7 +282,8 @@ class UploadFile(APIView):
             if not selected_bucket:
                 try:
                     bucket_name = f"default-bucket-{owner_id}"
-                    response = requests.post(BB_CREATE_BUCKETS, json={'owner_id': owner_id, 'selected_ds': selected_ds, 'bucket_name': bucket_name, 'static_path':static_path}, timeout=5)
+                    response = requests.post(BB_CREATE_BUCKETS, json={'owner_id': owner_id, 'selected_ds': selected_ds, 
+                                    'bucket_name': bucket_name, 'static_path':static_path, 'default': True, 'private_permissions': True }, timeout=5)
                     if response.status_code == 200:
                         selected_bucket = response.json().get('created_bucket')
                         print("Latest bucket:", selected_bucket)
@@ -362,3 +370,40 @@ class NC_Bucket_Settings(APIView):
         
             return render(request, 'bucket_settings.html', {'all_buckets': all_buckets , 'owner_id': owner_id})
 
+<<<<<<< HEAD
+=======
+
+
+class BucketCreation(APIView):
+    def get(self,request):
+        storage = get_messages(request)
+        list(storage)
+        owner_id = request.GET.get('owner_id')
+        selected_datastore_id = request.GET.get('datastore_id')
+        print(f"Owner ID: {owner_id}, Datastore: {selected_datastore_id}")
+        return render(request, 'bucket_creation.html', {'owner_id': owner_id, 'selected_datastore_id': selected_datastore_id, 'static_path': static_path})
+
+    def post(self, request):
+        owner_id = request.GET.get('owner_id')
+        static_path = request.POST.get('static_path')
+        selected_datastore_id = request.GET.get('datastore_id')
+        bucket_name = request.POST.get('bucket_name')
+        private_permissions = request.POST.get('private_permissions')
+        if private_permissions == "public":
+            private_permissions = False
+        else:
+            private_permissions = True
+        
+        print(f"Owner ID: {owner_id}, Datastore_Id: {selected_datastore_id}, Bucket Name: {bucket_name}, Private Permissions: {private_permissions}")
+        
+        response = requests.post(BB_CREATE_BUCKETS, json={'owner_id': owner_id, 'selected_ds': selected_datastore_id,
+                                    'bucket_name': bucket_name, 'private_permissions': private_permissions}, timeout=5)
+        
+        if response.status_code == 200:
+            messages.success(request, "New Bucket created successfully")
+
+        else:
+            messages.error(request, "Failed to create new bucket")
+        
+        return render(request, 'bucket_creation.html', {'owner_id': owner_id, 'selected_datastore_id': selected_datastore_id, 'static_path': static_path})
+>>>>>>> c92be95 (Updated with bucket creation)

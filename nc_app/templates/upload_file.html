@@ -21,6 +21,7 @@
 
             <input type="hidden" name="owner_id" value="{{ owner_id }}">
             <input type="hidden" name="static_path" value="{{ static_path }}">
+            <input type="hidden" name="instance_id" value="{{ instance_id }}">
             
             
 
@@ -59,7 +60,8 @@
                     {% endfor %}
                 </select>
                 
-
+            <a href="/api/bucket_creation?owner_id={{owner_id}}&datastore_id={{selected_ds}}" class="btn btn-secondary mt-2">Create Bucket</a>
+            
             <!-- Radio Button for file type-->
             <div class="form-group">
                 <label for="file_type">Select File Type:</label><br>
@@ -86,7 +88,7 @@
             
             <!-- Upload button -->
             <button type="submit" class="btn btn-primary">Upload</button>
-            <!-- <a href="/api/get_datastore?owner_id={{owner_id}}&instance_id={{instance_id}}" class="btn btn-secondary">Back to Home</a> -->
+            <a href="/api/get_datastore?owner_id={{owner_id}}&static_path={{static_path}}&instance_id={{instance_id}}" class="btn btn-secondary">Back to Home</a>
         </form>
     </div>
 </body>
