@@ -370,9 +370,6 @@ class NC_Bucket_Settings(APIView):
         
             return render(request, 'bucket_settings.html', {'all_buckets': all_buckets , 'owner_id': owner_id})
 
-<<<<<<< HEAD
-=======
-
 
 class BucketCreation(APIView):
     def get(self,request):
@@ -406,4 +403,4 @@ class BucketCreation(APIView):
             messages.error(request, "Failed to create new bucket")
         
         return render(request, 'bucket_creation.html', {'owner_id': owner_id, 'selected_datastore_id': selected_datastore_id, 'static_path': static_path})
->>>>>>> c92be95 (Updated with bucket creation)
+
