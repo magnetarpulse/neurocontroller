@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 
-class UserInfo(models.Model):
+class Users(models.Model):
     """ Model to store information of each user """
 
     username = models.CharField(max_length=100, blank=False)
@@ -15,10 +15,10 @@ class UserInfo(models.Model):
     last_login = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"Information for {self.username}: {self.password}"
+        return f"Information for {self.username}"
 
 
-class BBInstances(models.Model):
+class ByteBridges(models.Model):
     """ Model to store the instances of the bytebridge app and with a default datastore that's created """
 
     owner_id= models.IntegerField(blank=False, null=False) # ForeignKey to the User model

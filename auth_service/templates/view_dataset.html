@@ -1,0 +1,29 @@
+<html>
+<head>
+    <title>Dataset Preview</title>
+    <style>
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h2>Dataset Preview</h2>
+    <hr>
+
+    {% if file_path %}
+    
+    <!-- {% if file_path|lower|slice:"-4:" == ".csv" %} -->
+        <iframe src="https://docs.google.com/gview?url={{ file_path }}&embedded=true" width="100%" height="500px"></iframe>
+    
+        <!-- {% else %}
+        <img src="{{ file_path }}" alt="Dataset Image"> -->
+    {% endif %}
+{% else %}
+    <p>No dataset available.</p>
+{% endif %}
+
+    <hr>
+</body>
+</html>
