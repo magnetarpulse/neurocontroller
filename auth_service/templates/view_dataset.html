@@ -1,29 +1,72 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Dataset Preview</title>
+    <meta charset="UTF-8">
+    <title>View Dataset</title>
     <style>
-        img {
-            max-width: 100%;
-            height: auto;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow-x: auto;
+            display: block;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            white-space: nowrap;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        iframe {
+            width: 100%;
+            height: 800px;
+            border: none;
         }
     </style>
 </head>
 <body>
-    <h2>Dataset Preview</h2>
-    <hr>
 
-    {% if file_path %}
-    
-    <!-- {% if file_path|lower|slice:"-4:" == ".csv" %} -->
-        <iframe src="https://docs.google.com/gview?url={{ file_path }}&embedded=true" width="100%" height="500px"></iframe>
-    
-        <!-- {% else %}
-        <img src="{{ file_path }}" alt="Dataset Image"> -->
-    {% endif %}
+{% if 'text/csv' in content_type or 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' in content_type %}
+    <h2>Dataset Preview</h2>
+    <div style="max-height: 600px; overflow: auto;">
+        <table>
+            <thead>
+                <tr>
+                    {% if headers %}
+                        {% for header in headers %}
+                            <th>{{ header }}</th>
+                        {% endfor %}
+                    {% else %}
+                        {% for _ in rows.0 %}
+                            <th>Column {{ forloop.counter }}</th>
+                        {% endfor %}
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr>
+                        {% for cell in row %}
+                            <td>{{ cell }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% elif 'image' in content_type %}
+    <h2>Image Preview</h2>
+    <iframe src="{{ file_path }}"></iframe>
+
 {% else %}
-    <p>No dataset available.</p>
+    <h2>File</h2>
+    <p><a href="{{ file_path }}" target="_blank">Open File</a></p>
 {% endif %}
 
-    <hr>
 </body>
 </html>

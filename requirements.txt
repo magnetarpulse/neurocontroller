@@ -2,4 +2,4 @@ django
 djangorestframework
 requests
 djangorestframework-simplejwt
-
+pandas

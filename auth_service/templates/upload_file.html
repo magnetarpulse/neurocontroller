@@ -36,7 +36,7 @@
 
             <!-- Datastore Selection -->
             <div class="form-group">
-                <label for="selected_ds">Select a Public Datastore to upload file:</label>
+                <label for="selected_ds">Select a Datastore to upload file:</label>
                 <select name="selected_ds" id="selected_ds" class="form-control" onchange="this.form.submit()">
                     <option value="">Select a datastore</option>
                     {% for datastore in datastores_upload %}
@@ -48,7 +48,7 @@
             </div>
 
             <div class = "form-group">
-                <label for="selected_bucket">Select a Public Bucket to upload file:</label>
+                <label for="selected_bucket">Select a Bucket to upload file:</label>
                 <!-- Bucket Selection -->
                 <select name="selected_bucket" id="selected_bucket" class="form-control">
                     <option value="">Select a bucket</option>

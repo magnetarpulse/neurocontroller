@@ -1,6 +1,9 @@
 import json
 import uuid
 import requests
+import csv
+import pandas as pd
+from io import StringIO
 from django.utils import timezone
 from django.http import JsonResponse
 from django.http import HttpResponse
@@ -18,7 +21,6 @@ from .serializers import *
 from django.conf import settings
 from django.http import HttpResponseRedirect
 
-
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -31,21 +33,24 @@ from django.contrib.auth.hashers import make_password
 
 # Create your views here.
 global static_path
-static_path = r"/home/cc/neurobazaar/bytebridge/datastore"
+static_path = r"/home/cc/nb/bytebridge/bytebridge/datastore" 
 
 
 
 BB_CREATE_DS = 'http://127.0.0.1:9000/api/user_datastore'
 BB_CREATE_BUCKETS = 'http://127.0.0.1:9000/api/create_buckets'
+
 BB_CREATE_OBJECTS = 'http://127.0.0.1:9000/api/create_objects'
 
-BB_SEND_USER_DATASTORES = 'http://127.0.0.1:9000/api/send_user_datastores'
+BB_SEND_DATASTORES='http://127.0.0.1:9000/api/send_datastores'
+
+#BB_SEND_USER_DATASTORES = 'http://127.0.0.1:9000/api/send_user_datastores'
 BB_CHANGE_DS_SETTINGS = 'http://127.0.0.1:9000/api/change_ds_settings'
 
 BB_SEND_USER_BUCKETS = 'http://127.0.0.1:9000/api/send_user_buckets'
 BB_CHANGE_BUCKET_SETTINGS = 'http://127.0.0.1:9000/api/change_bucket_settings'
 
-BB_SEND_ALL_DATASTORES = 'http://127.0.0.1:9000/api/send_all_datastores'
+#BB_SEND_ALL_DATASTORES = 'http://127.0.0.1:9000/api/send_all_datastores'
 BB_SEND_ALL_BUCKETS = 'http://127.0.0.1:9000/api/send_all_buckets'
 
 BB_LIST_DATASETS = 'http://127.0.0.1:9000/api/list_datasets'
@@ -70,7 +75,7 @@ class RegisterAPI(APIView):
 
         print(f"Registered with:{username}:{password}")
     
-        user = User.objects.filter(username=username)
+        user = User.objects.filter(username=username) 
         if user.exists():
             messages.error(request, 'User already exists')
             return redirect('/api/login/')
@@ -261,15 +266,15 @@ class NC_DS_Settings(APIView):
         storage = get_messages(request)
         list(storage)
         owner_id = request.GET.get('owner_id')
-        response = requests.post(BB_SEND_USER_DATASTORES, json={'owner_id': owner_id},cookies=request.COOKIES,  timeout=5)
+        response = requests.post(BB_SEND_DATASTORES, json={'owner_id': owner_id},cookies=request.COOKIES,  timeout=5)
         if response.status_code == 200:
             response_data = response.json()  # Extract JSON response
-            all_datastores = response_data.get('all_datastores',[])  # Extract datastore_id
+            datastores_upload = response_data.get('datastores_upload',[])  # Extract datastore_id
 
             print(f"Owner ID {owner_id} received successfully by BB")
-            print(f"Datastores: {all_datastores}")
+            print(f"Datastores: {datastores_upload}")
             # You can process the response data here if needed
-            return render(request, 'ds_settings.html', {'all_datastores': all_datastores, 'owner_id': owner_id})
+            return render(request, 'ds_settings.html', {'all_datastores': datastores_upload, 'owner_id': owner_id})
 
 
     def post(self, request):
@@ -291,7 +296,7 @@ class NC_DS_Settings(APIView):
         else:
             messages.error(request, "Failed to update datastore settings")
         
-        response_data = requests.post(BB_SEND_USER_DATASTORES, json={'owner_id': owner_id}, cookies=request.COOKIES, timeout=5)
+        response_data = requests.post(BB_SEND_DATASTORES, json={'owner_id': owner_id}, cookies=request.COOKIES, timeout=5)
         if response_data.status_code == 200:
             response_data = response_data.json()  
             all_datastores = response_data.get('all_datastores',[]) 
@@ -356,7 +361,7 @@ class UploadFile(APIView):
         static_path = request.GET.get('static_path')
         selected_ds = request.GET.get('selected_ds', "")
         
-        response_ds = requests.post(BB_SEND_ALL_DATASTORES, json={'owner_id': owner_id}, cookies=request.COOKIES,  timeout=5)
+        response_ds = requests.post(BB_SEND_DATASTORES, json={'owner_id': owner_id,'include_public':True}, cookies=request.COOKIES,  timeout=5)
         
         if response_ds.status_code == 200:
             response_data = response_ds.json()
@@ -395,7 +400,7 @@ class UploadFile(APIView):
 
         print(f"Owner ID: {owner_id}, Selected Datastore: {selected_ds}, Selected Bucket: {selected_bucket}, File: {file}")
 
-        response_ds = requests.post(BB_SEND_ALL_DATASTORES, json={'owner_id': owner_id}, cookies=request.COOKIES, timeout=5)
+        response_ds = requests.post(BB_SEND_DATASTORES, json={'owner_id': owner_id, 'include_public':True}, cookies=request.COOKIES, timeout=5)
         datastores_upload = response_ds.json().get('datastores_upload', []) if response_ds.status_code == 200 else []
         
         buckets_upload = []
@@ -410,8 +415,10 @@ class UploadFile(APIView):
             if not selected_bucket:
                 try:
                     bucket_name = f"default-bucket-{owner_id}"
+                    
+                    
                     response = requests.post(BB_CREATE_BUCKETS, json={'owner_id': owner_id, 'selected_ds': selected_ds, 
-                                    'bucket_name': bucket_name, 'static_path':static_path, 'default': True, 'private_permissions': True },
+                                    'bucket_name': bucket_name, 'static_path':static_path, 'default': True, 'private_permissions': 'private' },
                                     cookies=request.COOKIES, timeout=5)
                     if response.status_code == 200:
                         selected_bucket = response.json().get('created_bucket')
@@ -474,10 +481,10 @@ class BucketCreation(APIView):
         selected_datastore_id = request.GET.get('datastore_id')
         bucket_name = request.POST.get('bucket_name')
         private_permissions = request.POST.get('private_permissions')
-        if private_permissions == "public":
-            private_permissions = False
-        else:
-            private_permissions = True
+        # if private_permissions == "public":
+        #     private_permissions = 'community'
+        # else:
+        #     private_permissions = 'private'
         
         print(f"Owner ID: {owner_id}, Datastore_Id: {selected_datastore_id}, Bucket Name: {bucket_name}, Private Permissions: {private_permissions}")
         
@@ -534,18 +541,48 @@ class ListDatasets(APIView):
 # View a specific dataset from BB
 class ViewDataset(APIView):
     def get(self, request, file_id, file_path):
-        file_id = file_id
-        file_path = file_path
-        print(f"Viewing file Id:{file_id}")
-        print(f"Viewing file Path:{file_path}")
+        try:
+            print(f"Viewing file Id: {file_id}")
+            print(f"Viewing file Path: {file_path}")
 
-        response = requests.post(BB_VIEW_FILE, json={'file_id': file_id, 'file_path': file_path}, cookies=request.COOKIES, timeout=5)
-        if response.status_code == 200:
-            response_data = response.json()
-            file_path = response_data.get('file_path')
-            print(f"File Path from BB: {file_path}")
-            return HttpResponseRedirect(file_path)
-            
+            response = requests.post(BB_VIEW_FILE, json={'file_id': file_id, 'file_path': file_path}, cookies=request.COOKIES, timeout=5)
+            print(f"POST status: {response.status_code}")
+
+            if response.status_code == 200:
+                response_data = response.json()
+                file_path = response_data.get('file_path')
+                content_type = response_data.get('content_type', '')
+
+                print(f"Received file_path: {file_path}")
+                print(f"Received content_type: {content_type}")
+
+                file_response = requests.get(file_path, cookies=request.COOKIES)
+                print(f"GET file status: {file_response.status_code}")
+
+                if 'text/csv' in content_type:
+                    csv_file = StringIO(file_response.text)
+                    reader = csv.reader(csv_file.read().splitlines())
+                    rows = list(reader)
+                    return render(request, 'view_dataset.html', {'rows': rows, 'file_path': file_path, 'content_type': content_type})
+                
+
+                elif 'image' in content_type:
+                    # print("Redirecting to file path")
+                    return HttpResponseRedirect(file_path)
+
+                else:
+                    return render(request, 'view_dataset.html', {'file_path': file_path, 'content_type': content_type})
+
+            else:
+                print(f"POST to BB_VIEW_FILE failed: {response.content}")
+                return HttpResponse("Failed to get file path", status=500)
+
+        except Exception as e:
+            print(f"Exception in ViewDataset: {str(e)}")
+            return HttpResponse(f"Exception occurred: {str(e)}", status=500)
+
+
+
 
 # Delete a specific file from BB
 class DeleteFile(APIView):
@@ -567,4 +604,12 @@ class DeleteFile(APIView):
 
         url = f"/api/list_datasets?owner_id={owner_id}&dataset_type={dataset_type}"
         return HttpResponseRedirect(url)
+        
+
+# Delete a specific bucket from BB
+class DeleteBuckets(APIView):
+    def get(self, request):
+        owner_id = request.GET.get('owner_id')
+        
+        print(f"Owner_id: {owner_id}")
         
