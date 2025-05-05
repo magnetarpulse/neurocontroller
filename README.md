@@ -26,7 +26,7 @@ python -m pip install -r requirements.txt
 
 If you are running the NeuroController program for the first time, you will need to migrate the Django database:
 ```
-python manage.py makemigrations bytebridge
+python manage.py makemigrations neurocontroller
 python manage.py migrate
 ```
 
