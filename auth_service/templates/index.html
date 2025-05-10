@@ -14,19 +14,26 @@
         <h1><span style="color: purple;">ByteBridge</span></h1>
         <hr>
 
+        <div class="text-right" style="margin-top: 10px;">
+            <a href="/api/login/" class="btn btn-info btn-md" style="background-color: brown;">Log out</a>
+        </div>
+
         <!-- Nav Tabs -->
         <ul class="nav nav-tabs" id="apiTabs">
             <li class="nav-item">
                 <a class="nav-link active" data-toggle="tab" href="#datastores">DataStore Settings</a>
             </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" href="#buckets">Bucket Settings</a>
-            </li>
+            </li> -->
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" href="#upload">Upload File</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" href="#datasets">View Datasets</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#delete_buckets">Delete Buckets</a>
             </li>
         </ul>
 
@@ -35,14 +42,17 @@
             <div id="datastores" class="tab-pane fade show active">
                 <p><a href="/api/nc_ds_settings?owner_id={{ owner_id }}" class="btn btn-primary">Go to DataStores Settings</a></p>
             </div>
-            <div id="buckets" class="tab-pane fade">
+            <!-- <div id="buckets" class="tab-pane fade">
                 <p><a href="/api/nc_bucket_settings?owner_id={{ owner_id }}" class="btn btn-primary">Go to Buckets Settings</a></p>
-            </div>
+            </div> -->
             <div id="upload" class="tab-pane fade">
                 <p><a href="/api/upload_file?owner_id={{ owner_id }}&static_path={{static_path}}&instance_id={{instance_id}}" class="btn btn-primary">Upload File</a></p>
             </div>
             <div id="datasets" class="tab-pane fade">
                 <p><a href="/api/list_datasets?owner_id={{ owner_id }}" class="btn btn-primary">View Datasets</a></p>
+            </div>
+            <div id="delete_buckets" class="tab-pane fade">
+                <p><a href="/api/delete_buckets?owner_id={{owner_id}}" class="btn btn-primary">Delete Buckets</a></p>
             </div>
         </div>
 

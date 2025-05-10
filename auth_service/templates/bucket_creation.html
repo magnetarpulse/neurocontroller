@@ -15,6 +15,10 @@
                 <span style="color: rgb(60, 34, 153);">Create a new Bucket</span>
             </h1>
 
+            <div class="text-right" style="margin-top: 10px;">
+                <a href="/api/login/" class="btn btn-info btn-sm" style="background-color: brown;">Log out</a>
+            </div>
+
             <!-- Display error/success messages -->
             {% if messages %}
             <div class="alert alert-primary" role="alert">
@@ -41,7 +45,7 @@
             <select name="private_permissions" class="form-control">
                 <option value="private" name="private" id ="private">Private</option>
                 <option value="public" name="public" id ="public">Public</option> 
-                <option value="community" name="community" id ="community">Community</option>
+                <!-- <option value="community" name="community" id ="community">Community</option> -->
                 
             </select>
             

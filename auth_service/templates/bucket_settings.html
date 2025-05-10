@@ -14,6 +14,10 @@
             <h1 style="text-align: center;">
                 <span style="color: rgb(60, 34, 153);">Bucket Privacy Settings</span>
             </h1>
+            
+            <div class="text-right" style="margin-top: 10px;">
+                <a href="/api/login/" class="btn btn-info btn-sm" style="background-color: brown;">Log out</a>
+            </div>
 
             <!-- Display error/success messages -->
             {% if messages %}
@@ -26,12 +30,33 @@
 
             
             <hr>
+            <!-- Datastore Selection -->
+            <div class="form-group">
+                <label for="selected_ds">Select a Datastore to change its bucket settings:</label>
+                <select name="selected_ds" id="selected_ds" class="form-control" onchange="redirectToSelectedDS(this)">
+                    <option value="">Select a datastore</option>
+                    {% for datastore in datastores_upload %}
+                        <option value="{{ datastore.1 }}" {% if selected_ds and selected_ds|stringformat:"s" == datastore.1|stringformat:"s" %}selected{% endif %}>
+                            {{ datastore.0 }}</option>
+                    {% endfor %}
+                </select>
+                
+                <script>
+                    function redirectToSelectedDS(selectObj) {
+                        const selectedDs = selectObj.value;
+                        const urlParams = new URLSearchParams(window.location.search);
+                        urlParams.set('selected_ds', selectedDs);
+                        window.location.href = window.location.pathname + '?' + urlParams.toString();
+                    }
+                </script>
+
+            <hr>
 
             <div class="form-group">
                 <label for="selected_bucket">Select a Bucket to Change its Privacy</label>
                 <select name="selected_bucket" id="selected_bucket" class="form-control">
                     <option value="">Select a Bucket</option>
-                    {% for bucket in all_buckets %}
+                    {% for bucket in buckets_upload %}
                         <option value="{{ bucket.1 }}" {% if selected_bucket and selected_bucket|stringformat:"s" == bucket.1|stringformat:"s" %}selected{% endif %}>
                         {{ bucket.0 }}</option>
                     {% empty %}
@@ -52,7 +77,6 @@
             <select name="private_permissions" class="form-control">
                 <option value="private" name="private" id ="private">Private</option>
                 <option value="public" name="public" id ="public">Public</option> 
-                <option value="community" name="community" id ="community">Community</option> 
             </select>
             
             <br>
@@ -65,10 +89,6 @@
        
             <hr>
             <button type="submit" class="btn btn-primary">Submit Changes</button>
-
-
-            <!-- <a href="{{referer_url}}" class="btn btn-secondary">Back to Home</a> -->
-            <!-- <a href="/api/get_datastore?owner_id={{owner_id}}&instance_id={{instance_id}}" class="btn btn-secondary">Back to Home</a> -->
 
             <a href="/api/get_datastore?owner_id={{owner_id}}&static_path={{static_path}}&instance_id={{instance_id}}" class="btn btn-secondary">Back to Home</a>
         
