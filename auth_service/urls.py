@@ -11,10 +11,10 @@ urlpatterns = [
         path('auth/verify/', verify_token_view, name='verify-token'),  #  Add token verification API
         
         path('api/nc_ds_settings', NC_DS_Settings.as_view(), name='nc_ds_settings'), # datastore settings from BB
-        path('api/nc_bucket_settings', NC_Bucket_Settings.as_view(), name='nc_bucket_settings'), # bucket settings from BB
+        #path('api/nc_bucket_settings', NC_Bucket_Settings.as_view(), name='nc_bucket_settings'), # bucket settings from BB
         
         re_path(r'^api/get_datastore$', GetDatastoreInfoAPI.as_view(), name='get_datastore_api'), # to get datastore from BB for a user
-        path('api/bucket_creation', BucketCreation.as_view(), name='bucket_creation'), # to create bucket in BB
+        #path('api/bucket_creation', BucketCreation.as_view(), name='bucket_creation'), # to create bucket in BB
         path('api/delete_buckets', DeleteBuckets.as_view(), name='delete_buckets'),  # to delete bucket from BB
 
         path('api/upload_file', UploadFile.as_view(), name='upload_file'), # to upload file to BB
