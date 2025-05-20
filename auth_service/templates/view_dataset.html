@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <title>{{file_name}}</title>
+    
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow-x: auto;
+            
+        }
+        th, td {
+            border: 1px solid #020202;
+            padding: 5px;
+            white-space: nowrap;
+        }
+        th {
+            background-color: #c982bc;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        
+    </style>
+
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-end mb-3">
+            <a href="{{ file_path }}" download class="btn btn-success ml-2">Download File</a>
+            <a href="/api/login/" class="btn btn-info btn-md" style="background-color: brown;">Log out</a>
+        </div>
+
+        <h2 style="color: darkblue;">Dataset Preview</h2>
+            <h5>File Name: <b>{{ file_name }}</b></h5>
+            <h5>File Size: <b>{{ file_size }}</b> bytes</h5>
+        <br>
+
+    {% if 'text/csv' in content_type %}
+
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto; position: relative;">
+                <table>
+                    <thead>
+                        <tr>
+                            {% if headers %}
+                                {% for header in headers %}
+                                    <th>{{ header }}</th>
+                                {% endfor %}
+                            {% else %}
+                                {% for _ in rows.0 %}
+                                    <th>Column {{ forloop.counter }}</th>
+                                {% endfor %}
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                            <tr>
+                                {% for cell in row %}
+                                    <td>{{ cell }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+    {% elif 'image' in content_type %}
+            <!-- <h2>Image Preview</h2> -->
+            <img src="{{ file_path }}" alt="Image Preview" class="img-fluid" style="max-height: 800px; width: 100%; object-fit: contain;">
+
+    {% else %}
+            <h2> Download and View the file. </h2>
+            <!-- <a href="{{ file_path }}" target="_blank">Open File</a> -->
+
+    {% endif %}
+
+</div>
+</body>
+</html>

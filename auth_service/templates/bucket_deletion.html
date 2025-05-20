@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Delete Buckets</title>
+</head>
+
+<body>
+    <div class="container mt-5">
+        
+        <form class="col-6 mx-auto card p-3 shadow-lg" method="post" enctype="multipart/form-data" >
+        
+            {% csrf_token %}  <!-- CSRF token for security -->
+            
+            <!-- Registration form heading -->
+            <h1 style="text-align: center;"><span style="color: rgb(60, 34, 153);">ByteBridge</span></h1>
+            <h3>Delete Buckets</h3>
+            
+            <div class="text-right" style="margin-top: 10px;">
+                <a href="/api/login/" class="btn btn-info btn-sm" style="background-color: brown;">Log out</a>
+            </div>
+            <hr>
+
+            <input type="hidden" name="owner_id" value="{{ owner_id }}">
+            <input type="hidden" name="static_path" value="{{ static_path }}">
+            <input type="hidden" name="instance_id" value="{{ instance_id }}">
+            
+            
+
+            <!-- Display error/success messages -->
+            {% if messages %}
+            <div class="alert alert-primary" role="alert">
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Datastore Selection -->
+            <div class="form-group">
+                <label for="selected_ds">Select a Datastore to delete a bucket from:</label>
+                <select name="selected_ds" id="selected_ds" class="form-control" onchange="this.form.submit()">
+                    <option value="">Select a datastore</option>
+                    {% for datastore in datastores_upload %}
+                        <option value="{{ datastore.1 }}" {% if selected_ds and selected_ds|stringformat:"s" == datastore.1|stringformat:"s" %}selected{% endif %}>
+                            {{ datastore.0 }}</option>
+                    {% empty %}
+                    {% endfor %}
+                </select>
+            </div>
+            
+
+            <div class = "form-group">
+                <label for="selected_bucket">Select a Bucket to delete:</label>
+                <!-- Bucket Selection -->
+                <select name="selected_bucket" id="selected_bucket" class="form-control">
+                    <option value="">Select a bucket</option>
+                    {% for bucket in buckets_upload %}
+                        <option value="{{ bucket.1 }}" {% if selected_bucket and selected_bucket|stringformat:"s" == bucket.1|stringformat:"s" %}selected{% endif %}>
+                            {{ bucket.0 }}
+                        </option>
+                    {% empty %}
+                    {% endfor %}
+                </select>
+            
+            <hr>
+            <!-- Delete confirmation -->
+            <div class="form-group">
+                <label for="confirm_delete">Type "delete" to confirm:</label>
+                <input type="text" name="confirm_delete" id="confirm_delete" class="form-control" required>
+            </div>
+            <p class="text-danger">Warning: This action is irreversible.</p>
+            
+            <hr>
+            <!-- Delete button -->
+            <button type="submit" class="btn btn-primary" style="background-color:red">Delete</button>
+            <a href="/api/get_datastore?owner_id={{owner_id}}&static_path={{static_path}}&instance_id={{instance_id}}" class="btn btn-secondary">Back to Home</a>
+        </form>
+    </div>
+</body>
+</html>

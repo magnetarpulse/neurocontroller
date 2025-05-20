@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Login form -->
+        <form id="login-form" class="col-6 mx-auto card p-3 shadow-lg" method="post" enctype="multipart/form-data">
+            <h1 style="text-align: center;"><span style="color: blue;">NeuroController</span></h1>
+
+            {% csrf_token %}  <!-- CSRF token for security -->
+
+            <!-- Login heading -->
+            <h3>Login</h3>
+            <hr>
+
+            <div id="message-box" class="alert" style="display: none;"></div>
+            <!-- Display error/success messages -->
+            {% if messages %}
+            <div class="alert alert-primary" role="alert">
+                {% for message in messages %}
+                
+                {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Username input field -->
+            
+            <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control" name="username" id="username" aria-describedby="username"
+                        placeholder="Enter username" required>
+                
+            </div>
+
+                <!-- Password input field -->
+            <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" class="form-control" id="password" placeholder="Enter Password" required>
+            </div>
+            
+
+            <!-- Link to registration page -->
+            <p>Don't have an account <a href="/api/register/">Register</a> </p>
+
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-primary">Submit</button>
+            
+            <!-- <hr>
+            <button id="start-bytebridge">Start ByteBridge</button> -->
+        
+        
+        </form>
+        
+    </div>
+
+    
+
+    <script>
+        document.getElementById("login-form").onsubmit = async function(event) {
+            event.preventDefault();
+
+            let formData = new FormData(event.target);
+            let response = await fetch("/login/", {
+                method: "POST",
+                body: new URLSearchParams(formData),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                credentials: "include"  // ✅ Ensures cookies are stored
+            });
+
+            let messageBox = document.getElementById("message-box");
+
+            let data = await response.json();
+            if (response.ok) {
+                messageBox.style.display = "block";
+                messageBox.className = "alert alert-success"; // Green for success
+                messageBox.textContent = "Login successful!";
+            } else {
+                messageBox.style.display = "block";
+                messageBox.className = "alert alert-danger"; // Red for error
+                messageBox.textContent = "Error: " + data.error;
+            }
+        };
+
+        document.getElementById("start-bytebridge").onclick = function() {
+            window.location.href = "http://127.0.0.1:9000";
+        };
+    </script>
+</body>
+</html>

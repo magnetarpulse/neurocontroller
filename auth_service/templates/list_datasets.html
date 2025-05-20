@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>View Datasets</title>
+</head>
+<style>
+    .tab-container {
+        display: flex;
+        justify-content: space-evenly; /* Ensures equal spacing */
+        border-bottom: 2px solid #ccc;
+        padding: 10px 0;
+    }
+
+    .tab-button {
+        flex: 1; /* Each button takes equal space */
+        background: #f0f0f0;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 16px;
+        outline: none;
+        border-bottom: 3px solid transparent;
+        text-align: center;
+    }
+
+    .tab-button:not(:last-child) {
+        margin-right: 10px; /* Optional spacing between buttons */
+    }
+
+    .tab-button.active {
+        background: #007bff;
+        color: white;
+        border-bottom: 3px solid #007bff;
+    }
+</style>
+
+<body>
+    <div class="container mt-5">
+
+        <form class="col-15 mx-auto card p-3 shadow-lg" method="POST" action="", onchange="this.form.submit()">
+            {% csrf_token %}
+            <h1 style="text-align: center;">
+                <span style="color: rgb(60, 34, 153);">View Datasets</span>
+            </h1>
+
+            <div class="text-right" style="margin-top: 10px;">
+                <a href="/api/login/" class="btn btn-info btn-sm" style="background-color: brown;">Log out</a>
+            </div>
+            
+            <hr>
+
+            
+            <input type="hidden" name="owner_id" value="{{ owner_id }}">
+            <input type="hidden" name="static_path" value="{{ static_path }}">
+
+            <div class="tab-container">
+                <button type="submit" name="dataset_type" value="private" 
+                    class="tab-button {% if dataset_type == 'private' %}active{% endif %}">
+                    Private
+                </button>
+                <button type="submit" name="dataset_type" value="public" 
+                    class="tab-button {% if dataset_type == 'public' %}active{% endif %}">
+                    Public
+                </button>
+                <button type="submit" name="dataset_type" value="image_collections" 
+                    class="tab-button {% if dataset_type == 'image_collections' %}active{% endif %}">
+                    Image Collections
+                </button>
+            </div>
+            
+
+            <hr>
+
+            <h2> Available Datasets:</h2>
+            <hr>
+                {% if datasets %}
+                <table border="1" style="width: 100%; text-align: center; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            
+                            <th>Dataset Name</th>
+                            <th>File Size</th>
+                            <th>Upload Time</th>
+                            <th>View Dataset</th>
+                            <th>Action</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for dataset in datasets %}
+                        <tr>
+                            <td>{{ dataset.1 }}</td>  <!-- file_name -->
+                            <td>{{ dataset.4 }}</td>  <!-- file size -->
+                            <td>{{ dataset.3 }}</td>  <!-- uploaded_at -->
+                            <td>View: <a href="{% url 'view_dataset' dataset.0 dataset.2|urlencode %}" target="_blank">{{ dataset.1 }}</a></td>  <!-- file_path -->
+                            
+                            <td>
+                                {% if dataset.5|stringformat:"s" == owner_id|stringformat:"s" %}
+                                <a href="#" class="btn btn-sm btn-danger" onclick="confirmDelete('{{ owner_id }}', '{{ dataset.0 }}', '{{ dataset_type }}')">Delete</a>
+                                {% endif %}
+                            </td>
+                            
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                    <p>No datasets available</p>
+                {% endif %}
+
+            <hr>
+            <a href="/api/get_datastore?owner_id={{owner_id}}&static_path={{static_path}}&instance_id={{instance_id}}" class="btn btn-secondary">Back to Home</a>
+        </form>
+    </div>
+</body>
+<script>
+    function confirmDelete(owner_id, file_id, dataset_type) {
+        let confirmation = confirm("Are you sure you want to delete this dataset?");
+        if (confirmation) {
+            window.location.href = `/api/delete_file?owner_id=${owner_id}&file_id=${file_id}&dataset_type=${dataset_type}`;
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let buttons = document.querySelectorAll(".tab-button");
+        let savedTab=None;
+        savedTab = localStorage.getItem("selectedTab");
+
+        buttons.forEach(button => {
+            button.addEventListener("click", function () {
+                localStorage.setItem("selectedTab", this.value);
+            });
+        });
+
+        // Restore active tab from localStorage
+        
+        if (savedTab) {
+            buttons.forEach(button => {
+                if (button.value === savedTab) {
+                    button.classList.add("active");
+                } else {
+                    button.classList.remove("active");
+                }
+            });
+        }
+
+        // add event listener to checkboxes
+        let checkboxes = document.querySelectorAll('input[name="selected_datasets"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    // If the checkbox is checked, add the dataset to localStorage
+                    localStorage.setItem(this.value, this.value);
+                } else {
+                    // If unchecked, remove it from localStorage
+                    localStorage.removeItem(this.value);
+                }
+            });
+        });
+        
+        //add the selected datasets to a list 
+        let selectedDatasets = [];
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                selectedDatasets.push(checkbox.value);
+            }
+        });
+
+        
+
+    });
+</script>
+</html>

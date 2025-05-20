@@ -26,11 +26,16 @@ python -m pip install -r requirements.txt
 
 If you are running the NeuroController program for the first time, you will need to migrate the Django database:
 ```
-python manage.py makemigrations bytebridge
+python manage.py makemigrations
 python manage.py migrate
 ```
 
 To start the NeuroController program run:
 ```
-python manage.py runserver
+python manage.py runserver 8000
+```
+
+To start with registering a user:
+```
+http:127.0.0.0.1:8000/api/register/
 ```

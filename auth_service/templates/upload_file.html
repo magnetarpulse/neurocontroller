@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Upload File</title>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <!-- File Upload -->
+        <form class="col-6 mx-auto card p-3 shadow-lg" method="post" enctype="multipart/form-data" channge="this.form.submit()" >
+        
+            {% csrf_token %}  <!-- CSRF token for security -->
+            
+            <!-- Registration form heading -->
+            <h1 style="text-align: center;"><span style="color: rgb(60, 34, 153);">ByteBridge</span></h1>
+            <h3>Upload File</h3>
+            
+            <div class="text-right" style="margin-top: 10px;">
+                <a href="/api/login/" class="btn btn-info btn-sm" style="background-color: brown;">Log out</a>
+            </div>
+            <hr>
+
+            <input type="hidden" name="owner_id" value="{{ owner_id }}">
+            <input type="hidden" name="static_path" value="{{ static_path }}">
+            <input type="hidden" name="instance_id" value="{{ instance_id }}">
+            
+            
+
+            <!-- Display error/success messages -->
+            {% if messages %}
+            <div class="alert alert-primary" role="alert">
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Datastore Selection -->
+            <div class="form-group">
+                <label for="selected_ds">Select a Datastore to upload file:</label>
+                <select name="selected_ds" id="selected_ds" class="form-control">
+                    <option value="">Select a datastore</option>
+                    {% for datastore in datastores_upload %}
+                        <option value="{{ datastore.1 }}" {% if selected_ds and selected_ds|stringformat:"s" == datastore.1|stringformat:"s" %}selected{% endif %}>
+                            {{ datastore.0 }}</option>
+                    {% empty %}
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- <script>
+                function redirectToSelectedDS(selectObj) {
+                    const selectedDs = selectObj.value;
+                    const urlParams = new URLSearchParams(window.location.search);
+                    urlParams.set('selected_ds', selectedDs);
+                    window.location.href = window.location.pathname + '?' + urlParams.toString();
+                }
+            </script> -->
+
+
+            <!--Add a radio button-->
+            <div class="form-group">
+                <label for = "privacy_bucket">Select the privacy type for your data:</label><br>
+                
+                <input type="radio" id="private" name="privacy_bucket" value="private"
+                    {% if selected_privacy_bucket == "private" %}checked{% endif %}>
+                <label for="private">Private</label><br>
+                
+                   
+                <input type="radio" id="public" name="privacy_bucket" value="public"
+                    {% if selected_privacy_bucket == "public" %}{% endif %}>
+                <label for="public">Public</label><br> 
+                
+            </div>
+
+            <!-- <div class = "form-group">
+                <label for="selected_bucket">Select a Bucket to upload file:</label>
+                Bucket Selection
+                <select name="selected_bucket" id="selected_bucket" class="form-control">
+                    <option value="">Select a bucket</option>
+                    {% for bucket in buckets_upload %}
+                        <option value="{{ bucket.1 }}" {% if selected_bucket and selected_bucket|stringformat:"s" == bucket.1|stringformat:"s" %}selected{% endif %}>
+                            {{ bucket.0 }}
+                        </option>
+                    {% empty %}
+                    {% endfor %}
+                </select> -->
+                
+            <!-- <a href="/api/bucket_creation?owner_id={{owner_id}}&datastore_id={{selected_ds}}" class="btn btn-secondary mt-2">Create Bucket</a>-->
+            
+            <!-- Radio Button for file type-->
+            <div class="form-group">
+                <label for="file_type">Select File Type:</label><br>
+                <input type="radio" id="csv" name="file_type" value="csv"
+                    {% if selected_file_type == "csv" %}checked{% endif %}>
+                <label for="csv">CSV</label><br>
+            
+                <input type="radio" id="image_collection" name="file_type" value="image_collection"
+                    {% if selected_file_type == "image_collection" %}checked{% endif %}>
+                <label for="image_collection">Image Collection</label><br>
+            
+                <input type="radio" id="image" name="file_type" value="image"
+                    {% if selected_file_type == "image" %}checked{% endif %}>
+                <label for="image">Image</label><br>
+
+                <input type="radio" id="other_file" name="file_type" value="other_file"
+                    {% if selected_file_type == "other_file" %}checked{% endif %}>
+                <label for="other_file">Other Files</label><br>
+            </div>
+
+            
+            <!-- Input for File -->
+            <div class="form-group">
+                <label for="file_upload">Upload a File:</label>
+                <input type="file" class="form-control" name="file" id="file" placeholder="Upload a File" required>
+            </div>
+            
+            <!-- Upload button -->
+            <button type="submit" class="btn btn-primary">Upload</button>
+            <a href="/api/get_datastore?owner_id={{owner_id}}&static_path={{static_path}}&instance_id={{instance_id}}" class="btn btn-secondary">Back to Home</a>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Create Bucket</title>
+</head>
+<body>
+    <div class="container mt-5">
+
+        <form class="col-6 mx-auto card p-3 shadow-lg" method="post" enctype="multipart/form-data" >
+            {% csrf_token %}
+            <h1 style="text-align: center;">
+                <span style="color: rgb(60, 34, 153);">Create a new Bucket</span>
+            </h1>
+
+            <div class="text-right" style="margin-top: 10px;">
+                <a href="/api/login/" class="btn btn-info btn-sm" style="background-color: brown;">Log out</a>
+            </div>
+
+            <!-- Display error/success messages -->
+            {% if messages %}
+            <div class="alert alert-primary" role="alert">
+                {% for message in messages %}
+                <li>{{ message }}</li>    
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            
+            <hr>
+
+            <input type="hidden" name="owner_id" value="{{ owner_id }}">
+            <input type="hidden" name="static_path" value="{{ static_path }}">
+            
+            <h4>Set Bucket Name</h4>
+            <hr>
+            <label for="bucket_name">New Bucket Name:</label>
+            <input type="text" name="bucket_name" id="bucket_name" class="form-control" placeholder="Enter new bucket name">
+       
+            <hr>
+            
+            <label for="private_permissions">Set Privacy of the new Bucket:</label>
+            <select name="private_permissions" class="form-control">
+                <option value="private" name="private" id ="private">Private</option>
+                <option value="public" name="public" id ="public">Public</option> 
+                <!-- <option value="community" name="community" id ="community">Community</option> -->
+                
+            </select>
+            
+            <br>
+            <hr>
+
+            
+            <button type="submit" class="btn btn-primary">Submit Changes</button>
+
+            <a href="/api/upload_file?owner_id={{owner_id}}&static_path={{static_path}}" class="btn btn-secondary">Back to Upload</a>
+
+        </form>
+    </div>
+</body>
+</html>

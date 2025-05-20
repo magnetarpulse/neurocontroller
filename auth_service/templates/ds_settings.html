@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Datastore Settings</title>
+</head>
+<body>
+    <div class="container mt-5">
+
+        <form class="col-6 mx-auto card p-3 shadow-lg" method="post" enctype="multipart/form-data" >
+            {% csrf_token %}
+            <h1 style="text-align: center;">
+                <span style="color: rgb(60, 34, 153);">Datastore Privacy Settings</span>
+            </h1>
+
+            <div class="text-right" style="margin-top: 10px;">
+                <a href="/api/login/" class="btn btn-info btn-sm" style="background-color: brown;">Log out</a>
+            </div>
+
+            <!-- Display error/success messages -->
+            {% if messages %}
+            <div class="alert alert-primary" role="alert">
+                {% for message in messages %}
+                <li>{{ message }}</li>    
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Display current privacy status -->
+            <!--<h4>Current Privacy: <span style="color: brown;">{{ datastore_private }}</span></h4>-->
+
+            <hr>
+
+            <div class="form-group">
+                <label for="selected_ds">Select a Datastore to Change its Privacy</label>
+                <select name="selected_ds" id="selected_ds" class="form-control">
+                    <option value="">Select a datastore</option>
+                    {% for datastore in all_datastores %}
+                        <option value="{{ datastore.1 }}" {% if selected_ds and selected_ds|stringformat:"s" == datastore.1|stringformat:"s" %}selected{% endif %}>
+                        {{ datastore.0 }}</option>
+                    {% empty %}
+                    {% endfor %}
+                </select>
+            </div>
+
+            <hr>
+
+            <input type="hidden" name="owner_id" value="{{ owner_id }}">
+            <input type="hidden" name="static_path" value="{{ static_path }}">
+            <input type="hidden" name="instance_id" value="{{ instance_id }}">
+            
+            
+            
+            <label for="private_permissions">Set Privacy:</label>
+            <select name="private_permissions" class="form-control">
+                <option value="private" name="private" id ="private">Private</option>
+                <option value="public" name="public" id ="public">Public</option> 
+                <option value="community" name="community" id ="community">Community</option> 
+            </select>
+            
+            <br>
+            <hr>
+
+            <h4>Rename Datastore</h4>
+            <hr>
+            <label for="datastore_name">Rename Datastore:</label>
+            <input type="text" name="datastore_name" id="datastore_name" class="form-control" placeholder="Enter new datastore name">
+       
+            <hr>
+            <button type="submit" class="btn btn-primary">Submit Changes</button>
+
+            <a href="/api/get_datastore?owner_id={{owner_id}}&static_path={{static_path}}&instance_id={{instance_id}}" class="btn btn-secondary">Back to Home</a>
+        </form>
+    </div>
+</body>
+</html>

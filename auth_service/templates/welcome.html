@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>ByteBridge</title>
+</head>
+
+
+<body>
+
+    <div class="container mt-5">
+        <form method="POST" enctype="multipart/form-data" action="http://127.0.0.1:8000/api/get_datastore">
+            {% csrf_token %}
+
+            
+            <h1 style="text-align: center;">
+                <span style="color: rgb(60, 34, 153);">Welcome to ByteBridge</span>
+            </h1>
+
+            <div class="text-right" style="margin-top: 10px;">
+                <a href="/api/login/" class="btn btn-info btn-md" style="background-color: brown;">Log out</a>
+            </div>
+
+            <input type="hidden" name="owner_id" value="{{ owner_id }}">
+            <input type="hidden" name="static_path" value="{{ static_path }}">
+            <input type="hidden" name="instance_id" value="{{ instance_id }}">
+            
+            <!-- Display username dynamically -->
+            <h1>Hello,<span style="color: purple; "> {{username}}</span></h1>
+
+            <hr>
+
+            <button type="submit" class="btn btn-primary">Get Started!</button>
+           
+            
+        </form>
+        <!-- Footer -->
+
+    </div>
+</body>
+
+</html>
