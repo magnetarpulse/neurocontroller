@@ -15,8 +15,22 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.urls import path, include
+from django.contrib import admin
 from django.urls import path
+from nc_app import views
+from django.shortcuts import render
+from django.contrib import admin
+from django.urls import path, include
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('nc_app.urls')),
+    
+    
+    path('login/', views.login_view, name='login'),
+    path('auth/', include('nc_app.urls')),
+    path('', lambda request: render(request, "login.html")),  # Redirect root to login
+
 ]
