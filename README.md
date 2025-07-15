@@ -5,6 +5,7 @@ Authors and Contributors:
 - Alexandru Iulian Orhean (aorhean@depaul.edu)
 - Huy Nguyen (hnguye83@depaul.edu)
 - Areena Mahek (amahek@depaul.edu)
+- Rushikesh Rajendra Suryawanshi (rsuryawa@depaul.edu)
 - Ankita Kiran Kshirsagar (akshirsa@depaul.edu)
 - Marija Stojanoska (mstojan1@depaul.edu)
 
